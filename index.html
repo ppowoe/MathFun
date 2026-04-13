@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>數之樂 - 首頁 | 數學學習平台</title>
+    <!-- Bootstrap 5 CSS (最新穩定版) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 可選：輕量自定義微調 (保留 Bootstrap 整體風格，僅增強細節) -->
+    <style>
+		.list-group-item {
+			transition: all 0.2s ease;
+			cursor: pointer;
+		}
+
+		.list-group-item:hover {
+			transform: scale(1.02);
+		}
+
+        /* 保持整體閱讀舒適度 */
+        body {
+            background: #f8f9fc;
+            font-family: system-ui, 'Segoe UI', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+        }
+        /* 讓卡片內的連結文字稍微加強對比 */
+        .stretched-link:focus-visible {
+            outline: 2px solid #0d6efd;
+            outline-offset: 2px;
+            border-radius: 0.375rem;
+        }
+		
+        /* Hero 區域的微光澤效果 */
+        .hero-glow {
+            background: linear-gradient(135deg, #ffffff 0%, #fef9e6 100%);
+        }
+        footer a {
+            text-decoration: none;
+            color: #6c757d;
+        }
+        footer a:hover {
+            color: #0d6efd;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- 主要內容容器：響應式置中，提供舒適留白 -->
+    <div class="container py-4 py-md-5">
+        
+        <!-- Hero 區塊：品牌標語與歡迎 -->
+        <div class="hero-glow p-4 p-md-5 mb-5 rounded-4 shadow-sm text-center border-0">
+            <h1 class="display-1 fw-bold text-dark mb-3">數之樂</h1>
+            <p class="lead text-secondary mb-0">探索數學的樂趣 · 從加法開始建立自信</p>
+            <hr class="my-4 w-25 mx-auto opacity-25">
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">🧪 動手實驗</span>
+                <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">✏️ 熟練練習</span>
+            </div>
+        </div>
+
+        <!-- 兩大核心區域：實驗室｜練習 (響應式網格並排) -->
+        <div class="row g-4 g-lg-5">
+            <!-- 左側：實驗室卡片 -->
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fs-2">🧪</span>
+                            <h2 class="h3 fw-semibold mb-0 text-dark">實驗室</h2>
+                        </div>
+                        <p class="text-muted mt-2 mb-0 small">動態探索 · 視覺化學習運算概念</p>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <!-- 個位數不進位加法實驗室 - 使用 stretched-link 讓整區塊可點擊 -->
+                            <li class="list-group-item border-2 rounded-2 m-2 px-4 py-3 position-relative bg-transparent">
+                                <a href="lab/single-digit-addition-without-carrying-over.html" 
+                                   class="stretched-link text-decoration-none fw-semibold text-dark d-flex align-items-center gap-2">
+                                    1. 個位數不進位加法實驗室
+                                </a>
+                            </li>
+                            <!-- 個位數進位加法實驗室 -->
+                            <li class="list-group-item border-2 rounded-2 m-2 px-4 py-3 position-relative bg-transparent">
+                                <a href="lab/single-digit-addition-with-carrying-over.html" 
+                                   class="stretched-link text-decoration-none fw-semibold text-dark d-flex align-items-center gap-2">
+                                    2. 個位數進位加法實驗室
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-4 pt-2 px-4">
+                        <small class="text-secondary d-flex align-items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-lightbulb" viewBox="0 0 16 16">
+                                <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13h-5a.5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m3 8.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-.5-.5"/>
+                            </svg>
+                            動手操作，理解原理
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側：練習卡片 -->
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fs-2">✏️</span>
+                            <h2 class="h3 fw-semibold mb-0 text-dark">練習</h2>
+                        </div>
+                        <p class="text-muted mt-2 mb-0 small">隨機出題 · 即時回饋強化計算力</p>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <!-- 個位數不進位加法練習 -->
+                            <li class="list-group-item border-2 rounded-2 m-2 px-4 py-3 position-relative bg-transparent">
+                                <a href="practice/single-digit-addition-without-carrying-over.html" 
+                                   class="stretched-link text-decoration-none fw-semibold text-dark d-flex align-items-center gap-2">
+                                    1. 個位數不進位加法練習
+                                </a>
+                            </li>
+                            <!-- 個位數加法練習 (含進位與不進位混合) -->
+                            <li class="list-group-item border-2 rounded-2 m-2 px-4 py-3 position-relative bg-transparent">
+                                <a href="practice/single-digit-addition.html" 
+                                   class="stretched-link text-decoration-none fw-semibold text-dark d-flex align-items-center gap-2">
+                                    2. 個位數加法練習
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-4 pt-2 px-4">
+                        <small class="text-secondary d-flex align-items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-trophy" viewBox="0 0 16 16">
+                                <path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5c0 .538-.012 1.05-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255l.252.18c.246.176.412.44.454.718l.012.062a.5.5 0 0 1-.491.58h-9a.5.5 0 0 1-.491-.58l.012-.062a1.2 1.2 0 0 1 .454-.718l.252-.18c.16-.12.343-.207.537-.255L6.5 13.11v-2.17c-.955-.235-2.043-1.146-2.833-3.012a3 3 0 1 1-1.133-5.89A23 23 0 0 1 2.5.5M4 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4m8 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4m-4 4c1.5 0 2.5-.5 3-1.5s.5-2 0-3-.5-1.5-3-1.5-2.5.5-3 1.5-.5 2 0 3 .5 1.5 3 1.5"/>
+                            </svg>
+                            反覆練習，掌握技巧
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 額外資訊：學習引導提示區塊 (輕量設計) -->
+        <div class="row mt-5 g-3">
+            <div class="col-12">
+                <div class="alert alert-primary bg-opacity-10 border-0 rounded-4 d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3" role="alert">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="fs-3">📚</span>
+                        <div>
+                            <strong class="fw-semibold">學習小叮嚀</strong><br>
+                            <span class="small">從「實驗室」觀察加法模式，再到「練習」實際挑戰，建立穩固基礎。</span>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="pointer-events: none;">✨ 循序漸進</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 簡潔頁尾 -->
+        <footer class="mt-5 pt-3 text-center text-muted border-top">
+            <div class="d-flex flex-wrap justify-content-center gap-4 small mb-2">
+                <span>🎓 專為初學者設計的數學訓練</span>
+            </div>
+            <p class="small opacity-75 mb-0">透過互動實驗與系統練習，讓數學變簡單</p>
+        </footer>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle (包含 Popper，用於未來可能互動元件，無強制需求但保持完整) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 無需額外自定義 JS，所有樣式由 Bootstrap 與微調 CSS 完成 -->
+</body>
+</html>
