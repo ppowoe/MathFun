@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>個位數不進位加法練習</title>
+  <!-- Bootstrap CSS (CDN allowed per instructions) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- jQuery (CDN allowed) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    body {
+      background: #f6f8fb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    .card {
+      width: 100%;
+      max-width: 800px;
+      box-shadow: 0 6px 18px rgba(33, 47, 84, 0.08);
+      border: none;
+      border-radius: 12px;
+    }
+    .expression {
+      font-size: 3rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .result-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .tick { background: #28a745; }
+    .cross { background: #dc3545; }
+    .answer-btn {
+      min-width: 56px;
+      margin: 6px;
+    }
+    .answers-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn-grid {
+      padding: 8px 12px;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(33,47,84,0.04);
+    }
+    .btn:disabled {
+      opacity: 0.7;
+    }
+    .small-muted {
+      font-size: 1rem;
+      color: #6c757d;
+    }
+    .footer-note {
+      font-size: 1rem;
+      color: #6b7280;
+    }
+    @media (max-width: 420px) {
+      .expression { font-size: 1.6rem; }
+      .answer-btn { min-width: 48px; margin: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card p-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h2 class="mb-0">數之樂：個位數不進位加法練習</h5>
+          <div class="small-muted">練習兩個個位數的加法，它們的和小於或等於9。</div>
+        </div>
+        <div class="text-end">
+          <div class="small-muted">分數</div>
+          <div id="score" class="fw-semibold">0 / 0</div>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-center py-3">
+        <div class="text-center">
+          <div id="expressionWrap" class="expression">
+            <span id="exprText" aria-live="polite">—</span>
+            <span id="resultIcon" class="ms-2" aria-hidden="true"></span>
+          </div>
+          <div class="mt-2 small-muted">請按以下按鈕作答</div>
+        </div>
+      </div>
+
+      <div class="mt-4 btn-grid">
+        <!-- Row 1: 1 to 10 -->
+        <div class="answers-row mb-2" id="row1"></div>
+        <!-- Row 2: 11 to 20 -->
+        <div class="answers-row mb-2" id="row2"></div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="footer-note">從上面的按鈕選擇問題的答案。</div>
+        <div>
+          <button id="nextBtn" class="btn btn-primary" disabled>下一題</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // jQuery ready
+    $(function () {
+      const $exprText = $('#exprText');
+      const $resultIcon = $('#resultIcon');
+      const $row1 = $('#row1');
+      const $row2 = $('#row2');
+      const $nextBtn = $('#nextBtn');
+      const $score = $('#score');
+
+      let current = { a: 0, b: 0, answered: false, correct: null };
+      let total = 0, correctCount = 0;
+
+      // Build answer buttons (2-9)
+      function buildAnswerButtons() {
+        $row1.empty();
+        $row2.empty();
+        for (let i = 2; i <= 9; i++) {
+          const $btn = $('<button>')
+            .addClass('btn btn-outline-primary answer-btn')
+            .attr('type', 'button')
+            .attr('data-value', i)
+            .text(i);
+
+          if (i <= 9) $row1.append($btn);
+          else $row2.append($btn);
+        }
+      }
+
+      // Generate random non-negative integers with sum <= 9
+      function generateQuestion() {
+        // Reset state
+        current.answered = false;
+        current.correct = null;
+        $resultIcon.empty().removeClass('tick cross').attr('aria-hidden', 'true');
+        $nextBtn.prop('disabled', true);
+        $('.answer-btn').prop('disabled', false).removeClass('btn-success btn-danger').removeAttr('aria-pressed');
+		
+		let a = 0;
+		let b = 0;
+		do {
+			a = Math.floor(Math.random() * 8) + 1;
+			b = Math.floor(Math.random() * (9 - a)) + 1;
+		} while (a == current.a || b == current.b)
+        
+        current.a = a;
+        current.b = b;
+        updateExpression();
+      }
+
+      function updateExpression() {
+        $exprText.text(`${current.a} + ${current.b} = ?`);
+      }
+
+      function revealAnswer(selected) {
+        if (current.answered) return;
+        current.answered = true;
+        const correctSum = current.a + current.b;
+        const isCorrect = (selected === correctSum);
+        current.correct = isCorrect;
+        total += 1;
+        if (isCorrect) correctCount += 1;
+
+        // Update UI
+        $resultIcon
+          .attr('aria-hidden', 'false')
+          .text(isCorrect ? '✓' : '✕')
+          .removeClass('tick cross')
+          .addClass(isCorrect ? 'result-icon tick' : 'result-icon cross');
+
+        // Highlight chosen button
+        const $chosen = $(`.answer-btn[data-value=${selected}]`);
+        $chosen.addClass(isCorrect ? 'btn-success' : 'btn-danger').attr('aria-pressed', 'true');
+
+        // Disable all answer buttons
+        $('.answer-btn').prop('disabled', true);
+
+        // Enable next button
+        $nextBtn.prop('disabled', false);
+
+        // Update score display
+        $score.text(`${correctCount} / ${total}`);
+      }
+
+      // Event delegation for answer buttons
+      $(document).on('click', '.answer-btn', function () {
+        const val = parseInt($(this).attr('data-value'), 10);
+        revealAnswer(val);
+      });
+
+      $nextBtn.on('click', function () {
+        generateQuestion();
+      });
+
+      // Initialize
+      buildAnswerButtons();
+      generateQuestion();
+
+      // Accessibility: allow keyboard selection via number keys 1..9,0 for 10, letters for 11..20 using bracket? We'll map keys 1..9,0, q..p for 11..20 (optional)
+      $(document).on('keydown', function (e) {
+        if (current.answered === false) {
+          // Map digits:
+          if (e.key >= '1' && e.key <= '9') {
+            const n = parseInt(e.key, 10);
+            const $btn = $(`.answer-btn[data-value=${n}]`);
+            if ($btn.length && !$btn.prop('disabled')) $btn.trigger('click');
+          } else if (e.key === '0') {
+            // treat 0 as 10
+            const $btn = $(`.answer-btn[data-value=10]`);
+            if ($btn.length && !$btn.prop('disabled')) $btn.trigger('click');
+          } else {
+            // Map keys q,w,e,r,t,y,u,i,o,p to 11..20 (top row letters)
+            const map = { q:11,w:12,e:13,r:14,t:15,y:16,u:17,i:18,o:19,p:20 };
+            const key = e.key.toLowerCase();
+            if (map[key]) {
+              const $btn = $(`.answer-btn[data-value=${map[key]}]`);
+              if ($btn.length && !$btn.prop('disabled')) $btn.trigger('click');
+            }
+          }
+        } else {
+          // If answered, allow Enter or Space to go to next
+          if ((e.key === 'Enter' || e.key === ' ') && !$nextBtn.prop('disabled')) {
+            e.preventDefault();
+            $nextBtn.trigger('click');
+          }
+        }
+      });
+
+      // Small improvement: announce new question for screen readers
+      $exprText.on('DOMSubtreeModified', function () {
+        // no-op but ensures assistive tech notified when text changes
+      });
+    });
+  </script>
+
+  <!-- Bootstrap JS (bundle includes Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
