@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>個位數進位加法實驗室</title>
+    <!-- Bootstrap 5 CSS + Icons + jQuery -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            user-select: none; /* 避免拖曳時選中文字，提升拖曳體驗 */
+        }
+        body {
+            background: #f0f7ff;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding-bottom: 2rem;
+        }
+        .card-main {
+            border: none;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+            background: white;
+            overflow: hidden;
+        }
+        .card-header-custom {
+            background: linear-gradient(135deg, #2b6e9f, #1e4a6e);
+            padding: 1.2rem;
+            color: white;
+            text-align: center;
+        }
+        .title {
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        .sub {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+        .equation-area {
+            background: #eef3fc;
+            border-radius: 3rem;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: bold;
+            font-family: monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .equation-text {
+            background: white;
+            padding: 0.2rem 1rem;
+            border-radius: 48px;
+            display: inline-block;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .feedback-icon {
+            font-size: 2rem;
+            margin-left: 12px;
+            display: inline-flex;
+            align-items: center;
+        }
+        .grid-container {
+            background: #fef9e6;
+            border-radius: 28px;
+            padding: 1rem;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            height: 100%;
+        }
+        .grid-title {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
+            background: #ffde9c;
+            display: inline-block;
+            width: 100%;
+            border-radius: 40px;
+            padding: 4px;
+            color: #5a3e1b;
+        }
+        .circle-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(5, auto);
+            gap: 12px 16px;
+            justify-items: center;
+            align-items: center;
+            background: #fff4e0;
+            border-radius: 28px;
+            padding: 1rem;
+            min-height: 280px;
+        }
+        .circle-item {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            transition: transform 0.05s ease;
+        }
+        .circle-item:active {
+            cursor: grabbing;
+        }
+        .circle-icon {
+            width: 42px;
+            height: 42px;
+            background: radial-gradient(circle at 30% 30%, #ffb347, #ff8c1a);
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.1s;
+            border: 2px solid white;
+        }
+        /* 拖曳時原圓點半透明 */
+        .circle-item.dragging-source .circle-icon {
+            opacity: 0.4;
+            transform: scale(0.95);
+        }
+        .circle-placeholder {
+            width: 42px;
+            height: 42px;
+            background: rgba(200, 180, 140, 0.2);
+            border-radius: 50%;
+            border: 2px dashed #d4b87a;
+        }
+        /* 拖曳中的克隆樣式 */
+        .drag-clone {
+            position: fixed;
+            z-index: 9999;
+            width: 42px;
+            height: 42px;
+            background: radial-gradient(circle at 30% 30%, #ffb347, #ff8c1a);
+            border-radius: 50%;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            border: 2px solid white;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            transform: scale(1.05);
+            transition: none;
+        }
+        .drop-zone-active {
+            background: #e0f0e8 !important;
+            transition: background 0.1s;
+        }
+        .answer-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0 15px;
+        }
+        .answer-btn {
+            min-width: 60px;
+            font-weight: 600;
+            border-radius: 60px;
+            transition: all 0.15s;
+            font-size: 1.2rem;
+            padding: 0.5rem 0;
+        }
+        .answer-btn:hover {
+            transform: scale(1.02);
+        }
+        .next-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .footer-note {
+            font-size: 0.8rem;
+            text-align: center;
+            color: #6c757d;
+            margin-top: 1rem;
+        }
+        @media (max-width: 768px) {
+            .circle-item {
+                width: 38px;
+                height: 38px;
+            }
+            .circle-icon {
+                width: 32px;
+                height: 32px;
+            }
+            .circle-placeholder {
+                width: 32px;
+                height: 32px;
+            }
+            .drag-clone {
+                width: 32px;
+                height: 32px;
+            }
+            .circle-grid {
+                gap: 8px 12px;
+                padding: 0.75rem;
+            }
+            .equation-text {
+                font-size: 1.6rem;
+            }
+        }
+        @media (max-width: 576px) {
+            .circle-icon {
+                width: 28px;
+                height: 28px;
+            }
+            .circle-placeholder {
+                width: 28px;
+                height: 28px;
+            }
+            .drag-clone {
+                width: 28px;
+                height: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container pt-2">
+    <div class="card-main">
+        <div class="card-header-custom">
+            <div class="title">🧸 數之樂：個位數進位加法實驗室</div>
+            <!--div class="sub">✨ 拖曳圓點改變數字組合 | 點擊下方按鈕回答總和 ✨</div-->
+        </div>
+        <div class="card-body p-4 p-md-3">
+            <!-- 第二行注解：提示拖曳 -->
+            <div class="text-center mb-2 text-muted">
+                <i class="fas fa-lightbulb"></i> 將圓點從左格拖到右格（或反過來），算式會自動改變，選擇正確的總和！
+            </div>
+
+            <!-- 第三行：算式展示區域 -->
+            <div class="equation-area" id="equationArea">
+                <span class="equation-text" id="additionExpression">
+                    <span id="leftVal">5</span> + <span id="rightVal">3</span>
+                </span>
+                <span id="answerFeedback" class="feedback-icon"></span>
+            </div>
+
+            <!-- 第四行: 兩個並排的5x2網格，支援拖曳 -->
+            <div class="row g-4 mb-4">
+                <!-- 左邊網格 A -->
+                <div class="col-md-6">
+                    <div class="grid-container" id="leftGridZone" data-side="left">
+                        <!--div class="grid-title"><i class="fas fa-hand-peace"></i> 左邊籃子 · 可拖出圓點</div-->
+                        <div id="leftGrid" class="circle-grid dropzone" data-grid="left"></div>
+                    </div>
+                </div>
+                <!-- 右邊網格 B -->
+                <div class="col-md-6">
+                    <div class="grid-container" id="rightGridZone" data-side="right">
+                        <!--div class="grid-title"><i class="fas fa-hand-peace"></i> 右邊籃子 · 可拖入圓點</div-->
+                        <div id="rightGrid" class="circle-grid dropzone" data-grid="right"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第五行: 答案按鈕 2~18 -->
+            <div class="answer-btn-group" id="answerButtonsContainer"></div>
+
+            <!-- 第六行: 下一題按鈕 -->
+            <div class="d-flex justify-content-center mt-3">
+                <button id="nextBtn" class="btn btn-primary btn-lg next-btn px-5 rounded-pill shadow-sm">
+                    <i class="fas fa-arrow-right"></i> 下一題 ➡️
+                </button>
+            </div>
+            <!--div class="footer-note">
+                💡 提示：必須答對目前題目，「下一題」按鈕才會解鎖。拖曳圓點後需重新作答。
+            </div-->
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // ---------- 全域狀態 ----------
+    let currentLeft = 5;      // 左邊實際圓點數量 (0~10)
+    let currentRight = 3;     // 右邊實際圓點數量 (0~10)
+    let originalSum = 8;      // 題目總和 (不變，但隨拖曳移動時總和恆定)
+    let isAnsweredCorrect = false;   // 目前題目是否已答對
+	
+	let dragDisabled = false;       // 答對後禁止拖曳
+	let $answerButtons = [];
+    
+    // 自訂拖曳相關變數
+    let dragActive = false;
+    let dragClone = null;
+    let dragSourceSide = null;       // 'left' 或 'right'
+    let dragSourceElement = null;    // 被拖曳的 .circle-item 元素
+    let startMouseX = 0, startMouseY = 0;
+    let cloneOffsetX = 0, cloneOffsetY = 0;
+    
+    // DOM 元素
+    const $leftGrid = $('#leftGrid');
+    const $rightGrid = $('#rightGrid');
+    const $leftValSpan = $('#leftVal');
+    const $rightValSpan = $('#rightVal');
+    const $feedbackSpan = $('#answerFeedback');
+    const $nextBtn = $('#nextBtn');
+    const $answerContainer = $('#answerButtonsContainer');
+    
+    // ---------- 輔助函式：渲染兩個網格 (5x2) ----------
+    function renderGrids() {
+        renderSingleGrid($leftGrid, currentLeft, 'left');
+        renderSingleGrid($rightGrid, currentRight, 'right');
+        updateEquationDisplay();
+        // 重新綁定拖曳事件 (事件委託已存在，但需要確保新產生的 .circle-item 有正確的 cursor 樣式)
+        // 拖曳綁定使用全局委託，不用額外動作
+    }
+    
+    // 渲染單一網格，產生可拖曳的圓點 (只有有圓點的位置才能拖曳)
+    function renderSingleGrid($gridElement, count, side) {
+        const capacity = 10; // 5x2 = 10
+        $gridElement.empty();
+        for (let i = 0; i < capacity; i++) {
+            const isCircle = i < count;
+            const $cell = $('<div>').addClass('circle-item');
+            if (isCircle) {
+                // 實心圓點，可拖曳
+                const $circle = $('<div>').addClass('circle-icon');
+                $cell.append($circle);
+                $cell.attr('data-side', side);
+                $cell.attr('data-index', i);
+                // 確保 draggable 為 false (使用自訂拖曳，原生拖曳關閉)
+                $cell.attr('draggable', 'false');
+            } else {
+                // 佔位符，不可拖曳
+                const $placeholder = $('<div>').addClass('circle-placeholder');
+                $cell.append($placeholder);
+                $cell.attr('draggable', 'false');
+                $cell.removeAttr('data-side');
+            }
+            $gridElement.append($cell);
+        }
+    }
+    
+    // 更新算式顯示 a + b
+    function updateEquationDisplay() {
+        $leftValSpan.text(currentLeft);
+        $rightValSpan.text(currentRight);
+    }
+    
+    // 清除答案反饋 (綠勾/紅叉)
+    function clearFeedback() {
+		$feedbackSpan.html('');
+		isAnsweredCorrect = false;
+		//$nextBtn.prop('disabled', true);
+		resetButtonsToDefault();   // 啟用所有按鈕，清除顏色
+		dragDisabled = false;
+	}
+    
+    // 顯示正確標誌 (綠勾)
+    function showCorrectFeedback() {
+        $feedbackSpan.html('<i class="fas fa-check-circle text-success" style="font-size:2rem;"></i>');
+        isAnsweredCorrect = true;
+        //$nextBtn.prop('disabled', false);
+    }
+    
+    // 顯示錯誤標誌 (紅叉)
+    function showWrongFeedback() {
+        $feedbackSpan.html('<i class="fas fa-times-circle text-danger" style="font-size:2rem;"></i>');
+        isAnsweredCorrect = false;
+        //$nextBtn.prop('disabled', true);
+    }
+    
+    // 驗證答案 (使用者點擊數字按鈕)
+    function checkAnswer(selectedSum, $clickedBtn) {
+		// 若已經答對，不再處理任何點擊
+		if (isAnsweredCorrect) return;
+		
+		const total = currentLeft + currentRight;
+		
+		if (selectedSum === total) {
+			// 正確：禁用所有按鈕，標記正確按鈕綠色，顯示勾勾，禁止拖曳
+			markCorrectAndDisableAll($clickedBtn);
+			showCorrectFeedback();
+			dragDisabled = true;
+		} else {
+			// 錯誤：僅禁用當前點擊的按鈕（變紅且禁用）
+			markSingleButtonWrong($clickedBtn);
+			showWrongFeedback();
+			// 保持 isAnsweredCorrect = false，下一題仍禁用
+			// 不改變 dragDisabled，允許拖曳修正
+		}
+	}
+	
+    // 產生新題目 (隨機 a,b 均為 5~9 非零個位整數)
+    function generateNewProblem() {
+		let a = Math.floor(Math.random() * 5) + 5;
+		let b = Math.floor(Math.random() * 5) + 5;
+		currentLeft = a;
+		currentRight = b;
+		originalSum = a + b;
+		isAnsweredCorrect = false;
+		dragDisabled = false;
+		clearFeedback();      // 此函數已包含重置按鈕、清除反饋
+		renderGrids();
+		updateEquationDisplay();
+	}
+    
+    // ---------- 自訂拖曳邏輯 (讓圓圈跟隨鼠標/手指) ----------
+    function startDrag(e, $item, side) {
+        if (dragActive || dragDisabled || isAnsweredCorrect) return;
+        e.preventDefault();
+        // 取得點擊位置 (支援觸控)
+        let clientX, clientY;
+        if (e.type === 'mousedown') {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        } else if (e.type === 'touchstart') {
+            const touch = e.originalEvent.touches[0];
+            clientX = touch.clientX;
+            clientY = touch.clientY;
+            e.preventDefault();
+        } else {
+            return;
+        }
+        
+        dragSourceSide = side;
+        dragSourceElement = $item[0];
+        // 在原圓點上加入半透明樣式
+        $item.addClass('dragging-source');
+        
+        // 取得圓點尺寸
+        const rect = $item.find('.circle-icon')[0].getBoundingClientRect();
+        const cloneWidth = rect.width;
+        const cloneHeight = rect.height;
+        
+        // 建立克隆圓點，跟隨鼠標
+        dragClone = $('<div class="drag-clone"></div>');
+        $('body').append(dragClone);
+        // 設定初始位置 (鼠標中心對齊克隆中心)
+        cloneOffsetX = cloneWidth / 2;
+        cloneOffsetY = cloneHeight / 2;
+        dragClone.css({
+            left: clientX - cloneOffsetX,
+            top: clientY - cloneOffsetY,
+            position: 'fixed'
+        });
+        
+        dragActive = true;
+        
+        // 綁定移動與結束事件
+        $(document).on('mousemove.drag', onDragMove);
+        $(document).on('mouseup.drag', onDragEnd);
+        $(document).on('touchmove.drag', onDragMove);
+        $(document).on('touchend.drag', onDragEnd);
+        $(document).on('touchcancel.drag', onDragEnd);
+    }
+    
+    function onDragMove(e) {
+        if (!dragActive) return;
+        e.preventDefault();
+        let clientX, clientY;
+        if (e.type === 'mousemove') {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        } else if (e.type === 'touchmove') {
+            const touch = e.originalEvent.touches[0];
+            clientX = touch.clientX;
+            clientY = touch.clientY;
+            e.preventDefault();
+        } else {
+            return;
+        }
+        if (dragClone) {
+            dragClone.css({
+                left: clientX - cloneOffsetX,
+                top: clientY - cloneOffsetY
+            });
+        }
+        // 高亮可放置區域 (滑鼠下方的網格)
+        const elemUnderCursor = document.elementsFromPoint(clientX, clientY)[0];
+        const $targetGrid = $(elemUnderCursor).closest('.dropzone');
+        $('.dropzone').removeClass('drop-zone-active');
+        if ($targetGrid.length) {
+            $targetGrid.addClass('drop-zone-active');
+        }
+    }
+    
+    function onDragEnd(e) {
+        if (!dragActive) {
+            endDragCleanup();
+            return;
+        }
+        e.preventDefault();
+        let clientX, clientY;
+        if (e.type === 'mouseup') {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        } else if (e.type === 'touchend' || e.type === 'touchcancel') {
+            // 觸控結束時，取最後觸控點（若無則用事件 changedTouch）
+            if (e.originalEvent.changedTouches && e.originalEvent.changedTouches.length) {
+                const touch = e.originalEvent.changedTouches[0];
+                clientX = touch.clientX;
+                clientY = touch.clientY;
+            } else {
+                // 無法取得位置時不做移動
+                endDragCleanup();
+                return;
+            }
+        }
+        
+        // 取得滑鼠/手指下方的元素，判斷目標網格
+        let targetSide = null;
+        if (clientX !== undefined && clientY !== undefined) {
+            const elemUnderCursor = document.elementsFromPoint(clientX, clientY)[0];
+            const $targetGrid = $(elemUnderCursor).closest('.dropzone');
+            if ($targetGrid.length) {
+                targetSide = $targetGrid.attr('data-grid'); // 'left' 或 'right'
+            }
+        }
+        
+        // 執行移動邏輯 (源側與目標側不同，且邊界合法)
+        if (dragSourceSide && targetSide && dragSourceSide !== targetSide) {
+            // 從左移到右
+            if (dragSourceSide === 'left' && targetSide === 'right') {
+                if (currentLeft > 0 && currentRight < 10) {
+                    currentLeft--;
+                    currentRight++;
+                    // 拖曳後清除正確答案標誌
+                    if (isAnsweredCorrect) clearFeedback();
+                    else {
+                        $feedbackSpan.html('');
+                        isAnsweredCorrect = false;
+                        //$nextBtn.prop('disabled', true);
+                    }
+                    renderGrids();
+                }
+            }
+            // 從右移到左
+            else if (dragSourceSide === 'right' && targetSide === 'left') {
+                if (currentRight > 0 && currentLeft < 10) {
+                    currentRight--;
+                    currentLeft++;
+                    if (isAnsweredCorrect) clearFeedback();
+                    else {
+                        $feedbackSpan.html('');
+                        isAnsweredCorrect = false;
+                        //$nextBtn.prop('disabled', true);
+                    }
+                    renderGrids();
+                }
+            }
+        }
+        
+        // 清理拖曳狀態
+        endDragCleanup();
+    }
+    
+    function endDragCleanup() {
+        if (dragClone) {
+            dragClone.remove();
+            dragClone = null;
+        }
+        if (dragSourceElement) {
+            $(dragSourceElement).removeClass('dragging-source');
+            dragSourceElement = null;
+        }
+        dragActive = false;
+        dragSourceSide = null;
+        $('.dropzone').removeClass('drop-zone-active');
+        // 移除全域事件
+        $(document).off('.drag');
+    }
+    
+    // 使用事件委託綁定拖曳啟動 (針對 .circle-item 內有 .circle-icon 的項目)
+    function bindCustomDrag() {
+        // 利用事件委託監聽 mousedown 與 touchstart
+        $(document).on('mousedown', '.circle-item .circle-icon', function(e) {
+            // 找到父層 .circle-item
+            const $item = $(this).closest('.circle-item');
+            if (!$item.length) return;
+            const side = $item.attr('data-side');
+            if (!side) return;
+            // 阻止原生事件
+            e.preventDefault();
+            startDrag(e, $item, side);
+        });
+        
+        $(document).on('touchstart', '.circle-item .circle-icon', function(e) {
+            const $item = $(this).closest('.circle-item');
+            if (!$item.length) return;
+            const side = $item.attr('data-side');
+            if (!side) return;
+            e.preventDefault();
+            startDrag(e, $item, side);
+        });
+        
+        // 避免頁面內預設拖曳圖片行為
+        $(window).on('dragstart', function(e) {
+            if ($(e.target).closest('.circle-item').length) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+	
+	// 重置所有按鈕至原始啟用狀態（清除顏色、取消禁用）
+	function resetButtonsToDefault() {
+		$answerButtons.forEach(btn => {
+			btn.prop('disabled', false);
+			btn.removeClass('btn-success btn-danger btn-secondary');
+			btn.addClass('btn-outline-primary');
+		});
+	}
+
+	// 正確時：禁用所有按鈕，正確按鈕變綠，其餘變灰
+	function markCorrectAndDisableAll($correctBtn) {
+		$answerButtons.forEach(btn => {
+			btn.prop('disabled', true);
+			if (btn[0] === $correctBtn[0]) {
+				btn.removeClass('btn-outline-primary').addClass('btn-success');
+			} else {
+				btn.removeClass('btn-outline-primary').addClass('btn-secondary');
+			}
+		});
+	}
+
+	// 錯誤時：僅禁用單一按鈕並變紅
+	function markSingleButtonWrong($btn) {
+		$btn.prop('disabled', true);
+		$btn.removeClass('btn-outline-primary').addClass('btn-danger');
+	}
+    
+    // ---------- 產生答案按鈕 10~18 ----------
+    function generateAnswerButtons() {
+		$answerContainer.empty();
+		$answerButtons = [];
+		for (let i = 10; i <= 18; i++) {
+			const $btn = $(`<button type="button" class="btn btn-outline-primary answer-btn" data-value="${i}">${i}</button>`);
+			$btn.on('click', (function(val) {
+				return function() { checkAnswer(val, $btn); };
+			})(i));
+			$answerContainer.append($btn);
+			$answerButtons.push($btn);
+		}
+	}
+    
+    // 綁定下一題按鈕
+    function bindNextButton() {
+        $nextBtn.off('click').on('click', function() {
+			generateNewProblem();
+			/*if (isAnsweredCorrect) {
+                generateNewProblem();
+            }*/
+        });
+    }
+    
+    // 初始化
+    function init() {
+        generateAnswerButtons();
+        bindCustomDrag();       // 自訂拖曳，圓點跟隨鼠標/手指
+        bindNextButton();
+        // 隨機第一題 (a,b 5~9)
+        let a = Math.floor(Math.random() * 5) + 5;
+        let b = Math.floor(Math.random() * 5) + 5;
+        currentLeft = a;
+        currentRight = b;
+        originalSum = a + b;
+        isAnsweredCorrect = false;
+        renderGrids();
+        updateEquationDisplay();
+        clearFeedback();        // 初始無答案，下一題禁用
+        //$nextBtn.prop('disabled', true);
+    }
+    
+    // 啟動
+    init();
+</script>
+</body>
+</html>
