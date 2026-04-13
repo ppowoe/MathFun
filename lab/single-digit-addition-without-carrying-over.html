@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>個位數不進位加法實驗室</title>
+    <!-- Bootstrap 5 + jQuery + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background: #eef2f8;
+            font-family: 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif;
+            padding-bottom: 2rem;
+        }
+        .card-lab {
+            border: none;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            background: white;
+        }
+        .card-header-lab {
+            background: linear-gradient(135deg, #2c7a4d, #1e5a3a);
+            color: white;
+            padding: 1.2rem;
+            text-align: center;
+        }
+        .title-lab {
+            font-weight: 700;
+            font-size: 1.9rem;
+            letter-spacing: -0.3px;
+        }
+        .step-guide {
+            background: #fef7e0;
+            border-left: 6px solid #ffb74d;
+            font-size: 0.95rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            margin: 0.5rem 0;
+        }
+        .hint-area {
+            background: #e9f5f0;
+            border-radius: 2rem;
+            padding: 0.8rem 1.2rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #1a5d3c;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .equation-numbers {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+        .number-card {
+            background: #ffffff;
+            width: 100px;
+            height: 100px;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+            border: 3px solid transparent;
+            background: #fafcff;
+        }
+        .number-card.selected {
+            border: 4px solid #ffb74d;
+            background: #fff7e8;
+            box-shadow: 0 0 0 3px rgba(255, 183, 77, 0.4);
+            transform: scale(1.02);
+        }
+		
+		.number-card.disabled-card {
+			opacity: 0.7;
+			cursor: not-allowed !important;
+			pointer-events: none;
+			background: #e9ecef;
+		}
+		
+        .number-card:hover {
+            transform: translateY(-4px);
+            background: #fff0db;
+        }
+
+        .plus-btn {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            font-size: 3rem;
+            font-weight: bold;
+            background: #2c7a4d;
+            border: none;
+            color: white;
+            transition: 0.1s;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .plus-btn:active {
+            transform: scale(0.96);
+        }
+        .plus-btn:disabled {
+            background: #adb5bd;
+            transform: none;
+            cursor: not-allowed;
+        }
+        .circle-track {
+            background: #fef3e0;
+            border-radius: 2rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .circles-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            min-height: 80px;
+        }
+        .circle-unit {
+            width: 48px;
+            height: 48px;
+            background: radial-gradient(circle at 30% 30%, #ffa559, #ff6f3c);
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 2px solid white;
+            transition: all 0.1s ease;
+        }
+        .circle-count {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: white;
+            padding: 0.2rem 1rem;
+            border-radius: 3rem;
+            display: inline-block;
+            min-width: 80px;
+            text-align: center;
+            color: #2c7a4d;
+        }
+        .next-btn-custom {
+            background: #3a6ea5;
+            border: none;
+            border-radius: 60px;
+            padding: 0.7rem 2rem;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        .next-btn-custom:hover {
+            background: #2c5985;
+            transform: translateY(-2px);
+        }
+        @media (max-width: 576px) {
+            .number-card {
+                width: 70px;
+                height: 70px;
+                font-size: 2.4rem;
+            }
+            .plus-btn {
+                width: 65px;
+                height: 65px;
+                font-size: 2rem;
+            }
+            .circle-unit {
+                width: 36px;
+                height: 36px;
+            }
+            .equation-numbers {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container pt-2">
+    <div class="card-lab">
+        <div class="card-header-lab">
+            <div class="title-lab">🧸 數之樂：個位數不進位加法實驗室</div>
+        </div>
+        <div class="card-body p-4 p-md-2">
+            <!-- 第二行：指引步驟 -->
+            <div class="step-guide">
+                <i class="fas fa-compass me-2 text-warning"></i>
+                <strong>步驟：</strong><br>
+                1️⃣ 點擊「較大的數字」 (如果兩個數字相同，請點選任一個) → 會自動生成相對應數量的圓形。<br>
+                2️⃣ 「較小的數字」就是你需要按下 ➕ 加號按鈕的次數！每按一次增加一個圓形，直到答案正確。
+            </div>
+
+            <!-- 第三行：提示字眼區域 -->
+            <div id="hintMessage" class="hint-area mb-3">
+                <span id="hintText">✨ 請先點選較大的數字 ✨</span>
+            </div>
+
+            <!-- 第四行：式子 (兩個可點擊的數字) -->
+            <div class="equation-numbers">
+                <div id="numA" class="number-card text-center" data-value="">? </div>
+                <span style="font-size: 3rem; font-weight: bold;">+</span>
+                <div id="numB" class="number-card text-center" data-value="">? </div>
+            </div>
+
+            <!-- 第五行：加號按鈕 -->
+            <div class="d-flex justify-content-center my-4">
+                <button id="plusBtn" class="plus-btn" disabled>
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+
+            <!-- 第六行：圓形標示區 + 右側數字顯示 -->
+            <div class="circle-track">
+                <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
+                    <span><i class="fas fa-circle text-warning"></i> 圓形進度</span>
+                    <span class="circle-count" id="circleCountDisplay">0</span>
+                </div>
+                <div id="circlesArea" class="circles-container">
+                    <!-- 動態圓形會出現在此 -->
+                    <div class="text-muted" id="emptyCircleHint">⭐ 點選較大數字後，圓形會出現 ⭐</div>
+                </div>
+            </div>
+
+            <!-- 第七行：下一題按鈕 (永遠可用) -->
+            <div class="d-flex justify-content-center mt-2">
+                <button id="nextBtn" class="btn btn-primary next-btn-custom shadow-sm">
+                    <i class="fas fa-forward"></i> 下一題
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // 全域變數
+    let currentA = 3;           // 左邊數字
+    let currentB = 4;           // 右邊數字
+    let bigNumber = 0;          // 較大的數字 (實際值)
+    let smallNumber = 0;        // 較小的數字 (實際值)
+    let targetTotal = 0;        // a+b 總和
+    let currentCircles = 0;     // 目前圓形數量 (初始0，選中較大數字後變成 bigNumber)
+    let addCount = 0;           // 已按加號次數 (需等於 smallNumber 才算完成)
+    let isCompleted = false;    // 是否已正確完成加法
+    let bigSelected = false;    // 是否已經選中較大數字 (並且已初始化圓形)
+    
+    // DOM 元素
+    const $numA = $('#numA');
+    const $numB = $('#numB');
+    const $plusBtn = $('#plusBtn');
+    const $circlesArea = $('#circlesArea');
+    const $circleCountDisplay = $('#circleCountDisplay');
+    const $hintText = $('#hintText');
+    const $nextBtn = $('#nextBtn');
+    
+    // 輔助函數：隨機產生 a,b (1~9 且 a+b < 10)
+    function generateValidNumbers() {
+        let a, b;
+        do {
+            a = Math.floor(Math.random() * 9) + 1; // 1-9
+            b = Math.floor(Math.random() * 9) + 1;
+        } while (a + b >= 10);
+        return { a, b };
+    }
+    
+    // 重置所有狀態 (保留 a,b 或重新設定)
+    function resetStateForNewNumbers(a, b) {
+        currentA = a;
+        currentB = b;
+        // 計算大小
+        if (currentA > currentB) {
+            bigNumber = currentA;
+            smallNumber = currentB;
+        } else if (currentB > currentA) {
+            bigNumber = currentB;
+            smallNumber = currentA;
+        } else {
+            // 相等
+            bigNumber = currentA;
+            smallNumber = currentA;
+        }
+        targetTotal = currentA + currentB;
+        
+        // 重置互動狀態
+        isCompleted = false;
+        bigSelected = false;
+        addCount = 0;
+        currentCircles = 0;
+		
+		// 重新啟用數字點擊（移除禁用樣式，重新綁定事件）
+		$numA.removeClass('disabled-card selected');
+		$numB.removeClass('disabled-card selected');
+		$numA.css('cursor', 'pointer');
+		$numB.css('cursor', 'pointer');
+		
+		// 重新綁定點擊事件（使用 unbind 再 bind 確保乾淨）
+		$numA.off('click').on('click', function() {
+			let val = parseInt($(this).attr('data-value'));
+			onNumberClick(val);
+		});
+		$numB.off('click').on('click', function() {
+			let val = parseInt($(this).attr('data-value'));
+			onNumberClick(val);
+		});
+        
+        // 更新式子顯示
+        $numA.text(currentA).attr('data-value', currentA);
+        $numB.text(currentB).attr('data-value', currentB);
+        
+        // 清空圓形區域
+        renderCircles(0);
+        $circleCountDisplay.text('0');
+        
+        // 禁用加號按鈕 (尚未選中較大數字)
+        $plusBtn.prop('disabled', true);
+        
+        // 重置提示訊息
+        $hintText.html('✨ 請先點選較大的數字 ✨');
+        
+        // 清除任何完成標誌，重新允許點擊數字
+        // 數字點擊啟用與否由 isCompleted 控制，另外點擊數字時若已完成則無效
+    }
+    
+    // 渲染圓形 (根據數量)
+    function renderCircles(count) {
+        $circlesArea.empty();
+        if (count === 0) {
+            $circlesArea.html('<div class="text-muted"><i class="far fa-circle"></i> 點選較大數字後，圓形會出現 ⭐</div>');
+            return;
+        }
+        for (let i = 0; i < count; i++) {
+            const $circle = $('<div>').addClass('circle-unit');
+            $circlesArea.append($circle);
+        }
+        $circleCountDisplay.text(count);
+    }
+    
+    // 執行「選擇較大數字」的核心邏輯 (自動觸發或手動觸發)
+    // selectedValue: 用戶點擊的數字值 (可能是較大或較小)
+    // 若用戶點擊正確(較大)則直接設定；若點擊錯誤，則自動選較大數字，並顯示提示
+    function selectBigNumber(clickedVal) {
+		if (isCompleted) return false;
+		
+		// 禁用數字按鈕（兩個數字都無法再點擊）
+		$numA.off('click');
+		$numB.off('click');
+		$numA.css('cursor', 'default');
+		$numB.css('cursor', 'default');
+		$numA.addClass('disabled-card');
+		$numB.addClass('disabled-card');
+		
+		let correctBig = bigNumber;
+		let isCorrect = (clickedVal === correctBig);
+		
+		if (!isCorrect) {
+			// 錯誤情況：顯示警告提示，並自動選取較大的數字
+			$hintText.html(`⚠️ 注意！較大的數字是 ${correctBig}，已自動選取正確答案並生成 ${correctBig} 個圓形。請按加號按鈕 ${smallNumber} 次。`);
+			performSelectBig(correctBig, true);
+		} else {
+			// 正確情況：顯示正確提示
+			$hintText.html(`✅ 正確！較大的數字是 ${correctBig}，已生成 ${correctBig} 個圓形。請按加號按鈕 ${smallNumber} 次。`);
+			performSelectBig(correctBig, true);
+		}
+	}
+    
+    // 執行真正選中較大數字的動作 (重置加號進度，重新生成初始圓形)
+    // 執行真正選中較大數字的動作 (重置加號進度，重新生成初始圓形)
+	// keepMessage: true 時不覆蓋提示文字，保留外部設定的訊息
+	function performSelectBig(bigVal, keepMessage = false) {
+		if (isCompleted) return false;
+		
+		// 如果已經選中且狀態一致，無需重置，但確保數字按鈕已被禁用（已經禁用）
+		if (bigSelected && currentCircles === bigNumber && addCount === 0 && bigVal === bigNumber) {
+			if (!keepMessage) {
+				$hintText.html(`ℹ️ 已選擇較大數字 ${bigNumber}，圓形數量 ${bigNumber}，還需要按 ${smallNumber} 次加號。`);
+			}
+			return true;
+		}
+		
+		// 重置加號進度
+		addCount = 0;
+		currentCircles = bigVal;
+		bigSelected = true;
+		
+		renderCircles(currentCircles);
+		
+		// 更新高亮：較大的數字加上 selected class
+		if (bigNumber === currentA) {
+			$numA.addClass('selected');
+			$numB.removeClass('selected');
+		} else {
+			$numB.addClass('selected');
+			$numA.removeClass('selected');
+		}
+		
+		// 啟用加號按鈕
+		if (!isCompleted) {
+			$plusBtn.prop('disabled', false);
+		}
+		
+		// 如果 keepMessage 為 false，則設定預設提示（但外部已提供提示，此處不再覆蓋）
+		return true;
+	}
+    
+    // 處理加號按鈕點擊
+    function onPlusClick() {
+        if (isCompleted) return;
+        if (!bigSelected) {
+            $hintText.html('⚠️ 請先點選較大的數字！');
+            return;
+        }
+        // 已經達成目標，不應可點 (但按鈕disabled會處理)
+        if (addCount >= smallNumber) {
+            $plusBtn.prop('disabled', true);
+            return;
+        }
+        
+        // 增加一個圓形
+        addCount++;
+        currentCircles++;
+        renderCircles(currentCircles);
+        
+        // 更新提示進度
+        let remain = smallNumber - addCount;
+        if (remain > 0) {
+            $hintText.html(`➕ 已按 ${addCount} 次，請再按 ${remain} 次。`);
+        }
+        
+        // 檢查是否達成目標
+        if (addCount === smallNumber) {
+            // 完成正確加法
+            isCompleted = true;
+            bigSelected = true;
+            $plusBtn.prop('disabled', true);
+            // 顯示正確答案訊息
+            $hintText.html(`🎉 答案正確！ ${currentA} + ${currentB} = ${targetTotal} 🎉`);
+            // 禁用數字點擊 (透過 isCompleted 控制點擊時 return)
+            // 保持高亮，不需額外動作
+        }
+    }
+    
+    // 處理數字點擊 (a 或 b)
+    function onNumberClick(clickedVal) {
+        if (isCompleted) {
+            $hintText.html(`🏆 已完成本題！點「下一題」繼續練習 🏆`);
+            return;
+        }
+        // 呼叫選擇邏輯 (內部會判斷正確/錯誤，自動調整)
+        selectBigNumber(clickedVal);
+    }
+    
+    // 下一題：隨機產生新題目，重置所有狀態
+    function nextProblem() {
+        const { a, b } = generateValidNumbers();
+        // 重置全域狀態
+        resetStateForNewNumbers(a, b);
+        // 清除完成標誌與加號禁用
+        isCompleted = false;
+        bigSelected = false;
+        addCount = 0;
+        currentCircles = 0;
+        renderCircles(0);
+        $plusBtn.prop('disabled', true);
+        $numA.removeClass('selected');
+        $numB.removeClass('selected');
+        $hintText.html('✨ 新題目！請點選較大的數字 ✨');
+    }
+    
+    // 初始化事件綁定
+    function bindEvents() {
+        $numA.off('click').on('click', function() {
+            let val = parseInt($(this).attr('data-value'));
+            onNumberClick(val);
+        });
+        $numB.off('click').on('click', function() {
+            let val = parseInt($(this).attr('data-value'));
+            onNumberClick(val);
+        });
+        $plusBtn.off('click').on('click', onPlusClick);
+        $nextBtn.off('click').on('click', function() {
+            nextProblem();
+        });
+    }
+    
+    // 初始化頁面 (隨機產生第一個合法題目)
+    function init() {
+        const { a, b } = generateValidNumbers();
+        resetStateForNewNumbers(a, b);
+        bindEvents();
+        // 確保額外狀態重置
+        isCompleted = false;
+        bigSelected = false;
+        $plusBtn.prop('disabled', true);
+        $hintText.html('✨ 請先點選較大的數字 ✨');
+        renderCircles(0);
+    }
+    
+    init();
+</script>
+</body>
+</html>
