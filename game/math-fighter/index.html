@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>數學小鬥士</title>
-	<link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <title>數之樂 - 遊戲 | 數學小鬥士</title>
+	<link rel="icon" type="image/x-icon" href="assets/math-fighter.ico">
 	
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,11 +39,11 @@
 				</div>
 			</div>
             
-            <button id="start-game-btn" class="btn btn-start mb-5">
+            <button id="start-game-btn" class="btn btn-start mb-4">
                 開始遊戲 (一般)
             </button>
             
-            <div class="bg-dark bg-opacity-75 rounded-4 p-4 mx-auto" style="max-width: 320px;">
+            <div class="bg-dark bg-opacity-75 rounded-4 p-4 mx-auto mb-2" style="max-width: 320px;">
                 <div class="d-flex flex-column align-items-center justify-content-center gap-2">
                     <span class="fs-5 text-warning">🏆 最高到達波數</span>
                     <span id="high-wave-display-normal" class="fs-6 fw-bold text-white">一般：0</span>
@@ -51,6 +51,12 @@
 					<span id="high-wave-display-hell" class="fs-6 fw-bold text-white">地獄：0</span>
                 </div>
             </div>
+			
+			<a id="back-btn" href="/MathFun">
+				<button class="btn btn-primary btn-outline-light border-3 text-red">
+					⬅️返回首頁
+				</button>
+			</a>
         </div>
     </div>
 
