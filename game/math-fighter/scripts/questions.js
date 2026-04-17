@@ -2,13 +2,20 @@
 function genAddTwoSingle(minSum = 2) {
 	let a = rand(1, 9);
 	let b = rand(1, 9);
-	while (a + b < minSum) b = rand(1, 9);
+	while (a + b < minSum) {
+		a = rand(1, 9);
+		b = rand(1, 9);
+	}
 	return { a, b, ans: a + b };
 }
 
 function genAddThreeSingle(minSum = 11) {
 	let a = rand(1, 9), b = rand(1, 9), c = rand(1, 9);
-	while (a + b + c < minSum) c = rand(1, 9);
+	while (a + b + c < minSum) {
+		a = rand(1, 9);
+		b = rand(1, 9);
+		c = rand(1, 9);
+	}
 	return { a, b, c, ans: a + b + c };
 }
 
