@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>數之樂 - 練習 | 兩位數加法</title>
+  <link rel="icon" type="image/x-icon" href="practice.ico">
+  
+  <!-- Bootstrap CSS (CDN allowed per instructions) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- jQuery (CDN allowed) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    body {
+      background: #f6f8fb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    .card {
+      width: 100%;
+      max-width: 800px;
+      box-shadow: 0 6px 18px rgba(33, 47, 84, 0.08);
+      border: none;
+      border-radius: 12px;
+    }
+    .expression {
+      font-size: 3rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .result-icon {
+      width: 0px;
+      height: 34px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .tick { background: #28a745; width: 34px;}
+    .cross { background: #dc3545; width: 34px;}
+    .answer-btn {
+      min-width: 56px;
+      margin: 6px;
+    }
+    .answers-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn-grid {
+      padding: 8px 12px;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(33,47,84,0.04);
+    }
+    .btn:disabled {
+      opacity: 0.7;
+    }
+    .small-muted {
+      font-size: 1rem;
+      color: #6c757d;
+    }
+    .footer-note {
+      font-size: 1rem;
+      color: #6b7280;
+    }
+    @media (max-width: 420px) {
+      .expression { font-size: 1.6rem; }
+      .answer-btn { min-width: 48px; margin: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card p-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h2 class="mb-0">數之樂：兩位數加法練習</h5>
+          <div class="small-muted">練習兩個數的加法，它們的和小於或等於99。</div>
+        </div>
+        <div class="text-end">
+          <div class="small-muted">分數</div>
+          <div id="score" class="fw-semibold">0 / 0</div>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-center py-3">
+        <div class="text-center">
+          <div id="expressionWrap" class="expression">
+            <span id="exprText" aria-live="polite">—</span>
+          </div>
+          <div class="mt-2 small-muted">請輸入數字，然後按“確定”作答。</div>
+        </div>
+      </div>
+
+      <div class="mt-4 d-flex flex-column align-items-center justify-content-center">
+		<input type="number" class="form-control mb-2 w-50" id="answerInput" value="" min="0" max="99">
+		<div class="w-100 d-flex justify-content-center">
+			<button id="answerBtn" class="btn btn-primary w-25">確定</button>
+			<span id="resultIcon" class="ms-2" aria-hidden="true"></span>
+		</div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="footer-note">在上面的空格輸入問題的答案，然後按“確定”作答。</div>
+        <div>
+          <button id="nextBtn" class="btn btn-primary" disabled>下一題</button>
+        </div>
+      </div>
+    </div>
+	<a id="back-btn" href="/MathFun">
+	  <button class="btn btn-primary btn-outline-light border-3 text-red">
+		⬅️返回首頁
+	  </button>
+	</a>
+  </div>
+
+  <script>
+	// jQuery ready
+	$(function () {
+	  const $exprText = $('#exprText');
+	  const $resultIcon = $('#resultIcon');
+	  const $row1 = $('#row1');
+	  const $row2 = $('#row2');
+	  const $nextBtn = $('#nextBtn');
+	  const $answerBtn = $('#answerBtn');
+	  const $answerInput = $('#answerInput');
+	  const $score = $('#score');
+
+	  let current = { a: 0, b: 0, answered: false, correct: null };
+	  let total = 0, correctCount = 0;
+	  
+	  function resetUI() {
+		$resultIcon.empty().removeClass('tick cross').attr('aria-hidden', 'true');
+		$exprText.text(`${current.a} + ${current.b} = ?`);
+		$answerBtn.prop('disabled', false);
+		$answerInput.val('');
+		$answerInput.prop('disabled', false);
+		$nextBtn.prop('disabled', true);
+	  }
+
+	  // Generate random non-negative integers with sum <= 99
+	  function generateQuestion() {
+		// Reset state
+		current.answered = false;
+		current.correct = null;
+		
+		let a = 0;
+		let b = 0;
+		do {
+			a = Math.floor(Math.random() * 80) + 10;
+			b = Math.floor(Math.random() * (89 - a)) + 10;
+		} while (a == current.a || b == current.b)
+		
+		current.a = a;
+		current.b = b;
+		
+		resetUI();
+	  }
+	  
+	  function revealAnswer(value) {
+		if (current.answered) return;
+		current.answered = true;
+		const correctSum = current.a + current.b;
+		const isCorrect = (value === correctSum);
+		current.correct = isCorrect;
+		total += 1;
+		if (isCorrect) correctCount += 1;
+
+		// Update UI
+		$resultIcon
+		  .attr('aria-hidden', 'false')
+		  .text(isCorrect ? '✓' : '✕')
+		  .removeClass('tick cross')
+		  .addClass(isCorrect ? 'result-icon tick' : 'result-icon cross');
+		  
+		$exprText.text(`${current.a} + ${current.b} = ${correctSum}`);
+
+		// Enable next button
+		$nextBtn.prop('disabled', false);
+
+		// Update score display
+		$score.text(`${correctCount} / ${total}`);
+	  }
+	  
+	  function disableAnswering() {
+		$answerInput.prop('disabled', true);
+		$answerBtn.prop('disabled', true);
+	  }
+	  
+	  function answer() {
+		const val = parseInt($answerInput.val());
+		revealAnswer(val);
+		disableAnswering();
+	  }
+
+	  // Initialize
+	  generateQuestion();
+	  
+	  // Inputs
+	  $answerBtn.on('click', function (e) {
+		answer();
+	  });
+	  
+	  $nextBtn.on('click', function () {
+		generateQuestion();
+	  });
+	  
+	  $(document).on('keypress', function(e) {
+		if (e.which == 13) {
+			answer();
+		} else if (e.which == 32 && current.correct != null) {
+			generateQuestion();
+		}
+	  });
+	});
+  </script>
+
+  <!-- Bootstrap JS (bundle includes Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>數之樂 - 實驗室 | 兩位數直式加法</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            user-select: none; /* 避免拖曳時選中文字 */
+        }
+        body {
+            background: #f0f7ff;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding-bottom: 2rem;
+            touch-action: pan-y;
+        }
+        .card-main {
+            border: none;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+            background: white;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .card-header-custom {
+            background: linear-gradient(135deg, #2b6e9f, #1e4a6e);
+            padding: 1.2rem;
+            color: white;
+            text-align: center;
+        }
+        .title {
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        #back-btn {
+            left: 20px;
+        }
+        
+        /* 橫式算式區 */
+        .equation-area {
+            background: #eef3fc;
+            border-radius: 3rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            font-family: monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .draggable-digit {
+            background: white;
+            padding: 0.2rem 1rem;
+            border-radius: 12px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            cursor: grab;
+            border: 2px solid #a4c2f4;
+            color: #1e4a6e;
+            touch-action: none;
+            transition: transform 0.1s;
+        }
+        .draggable-digit:active {
+            cursor: grabbing;
+        }
+        .draggable-digit.placed {
+            opacity: 0.5;
+            cursor: default;
+            box-shadow: none;
+            border-color: #eee;
+            background: #f8f9fa;
+        }
+        .math-sign {
+            color: #555;
+            padding: 0 0.5rem;
+        }
+
+        /* 直式加法區 */
+        .v-math-container {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .v-math-grid {
+            display: grid;
+            grid-template-columns: 50px 80px 80px;
+            gap: 6px 0;
+            justify-content: center;
+            position: relative;
+        }
+        .v-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-family: monospace;
+            font-weight: bold;
+            position: relative;
+        }
+        .v-cell.col-tens {
+            border-right: 3px dashed #888;
+        }
+        .v-header {
+            font-size: 1.5rem;
+            font-family: inherit;
+            color: #555;
+            height: 40px;
+        }
+        .v-divider {
+            grid-column: 1 / span 3;
+            height: 4px;
+            background: #000;
+            margin: 5px 0;
+        }
+        .v-sign {
+            font-size: 3.5rem;
+            color: #333;
+        }
+        
+        /* 放置區 (Drop Zone) */
+        .drop-box {
+            width: 60px;
+            height: 70px;
+            border: 3px dashed #b0c4de;
+            border-radius: 12px;
+            background: #f8fbff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: transparent; /* 初始無字 */
+            transition: all 0.2s;
+        }
+        .drop-box.filled {
+            border-style: solid;
+            border-color: #2b6e9f;
+            background: white;
+            color: #000;
+        }
+        .drop-zone-active {
+            background: #e0f0e8 !important;
+            border-color: #28a745 !important;
+        }
+        
+        /* 進位提示 */
+        .carry-hint {
+            position: absolute;
+            bottom: -5px;
+            right: 0px;
+            font-size: 1.4rem;
+            color: #d9534f;
+            display: none;
+            font-weight: bold;
+        }
+
+        /* 數字按鈕欄位 (第二階段) */
+        .number-bank {
+            display: none; /* 初始隱藏 */
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #fff4e0;
+            border-radius: 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .draggable-bank {
+            width: 55px;
+            height: 55px;
+            background: radial-gradient(circle at 30% 30%, #ffde9c, #ffb347);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            font-family: monospace;
+            color: #5a3e1b;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            border: 2px solid white;
+            cursor: grab;
+            touch-action: none;
+        }
+        .draggable-bank:active {
+            cursor: grabbing;
+        }
+
+        /* 拖曳中的克隆樣式 */
+        .drag-clone {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            font-family: monospace;
+            background: white;
+            border: 2px solid #2b6e9f;
+            border-radius: 12px;
+            width: 60px;
+            height: 70px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            transform: scale(1.1);
+            color: #1e4a6e;
+        }
+
+        /* 控制區 */
+        .action-area {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .btn-custom {
+            font-weight: 600;
+            border-radius: 50px;
+            padding: 0.6rem 1.5rem;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.15s;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Toast 樣式自定義 */
+        .custom-toast {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        /* 響應式 */
+        @media (max-width: 576px) {
+            .equation-area { font-size: 1.8rem; padding: 0.8rem; }
+            .draggable-digit { padding: 0.2rem 0.6rem; }
+            .v-math-grid { grid-template-columns: 40px 65px 65px; gap: 4px 0; }
+            .v-cell { font-size: 2.5rem; }
+            .drop-box { width: 50px; height: 60px; }
+            .draggable-bank { width: 45px; height: 45px; font-size: 1.6rem; }
+            .v-header { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11000;">
+    <div id="liveToast" class="toast custom-toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2500">
+        <div class="toast-header text-white" id="toastHeader">
+            <i class="fas fa-bell me-2"></i>
+            <strong class="me-auto" id="toastTitle">提示</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body fw-bold fs-5 text-center bg-white" id="toastMessage"></div>
+    </div>
+</div>
+
+<div class="container pt-3">
+    <div class="card-main">
+        <div class="card-header-custom d-flex justify-content-center position-relative">
+            <div class="title w-75">
+                🧸 數之樂：兩位數直式加法實驗室
+            </div>
+            <a id="back-btn" href="/MathFun" class="position-absolute">
+				<button class="btn btn-light">
+					🔙
+				</button>
+			</a>
+        </div>
+        <div class="card-body p-4 p-md-4">
+            
+            <div id="stage1Hint" class="text-center mb-3 text-muted fw-bold fs-5 text-primary">
+                <i class="fas fa-hand-pointer"></i> 第一階段：請將橫式中的數字拉到直式的正確位置。
+            </div>
+            <div id="stage2Hint" class="text-center mb-3 text-muted fw-bold fs-5 text-success" style="display: none;">
+                <i class="fas fa-calculator"></i> 第二階段：請拉動下方數字作答，算算看總和是多少？
+            </div>
+
+            <div class="equation-area" id="horizontalEq">
+                </div>
+
+            <div class="v-math-container">
+                <div class="v-math-grid" id="verticalGrid">
+                    <div class="v-cell"></div>
+                    <div class="v-cell col-tens v-header">十位</div>
+                    <div class="v-cell v-header">個位</div>
+
+                    <div class="v-cell"></div>
+                    <div class="v-cell col-tens">
+                        <div class="drop-box" data-pos="num1-tens"></div>
+                    </div>
+                    <div class="v-cell">
+                        <div class="drop-box" data-pos="num1-ones"></div>
+                    </div>
+
+                    <div class="v-cell v-sign">+</div>
+                    <div class="v-cell col-tens">
+                        <div class="drop-box" data-pos="num2-tens"></div>
+                        <span class="carry-hint" id="carryHint">1</span>
+                    </div>
+                    <div class="v-cell">
+                        <div class="drop-box" data-pos="num2-ones"></div>
+                    </div>
+
+                    <div class="v-divider"></div>
+
+                    <div class="v-cell"></div>
+                    <div class="v-cell col-tens">
+                        <div class="drop-box ans-zone" data-pos="ans-tens"></div>
+                    </div>
+                    <div class="v-cell">
+                        <div class="drop-box ans-zone" data-pos="ans-ones"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="number-bank" id="numberBank">
+                <div class="draggable-bank draggable" data-val="0">0</div>
+                <div class="draggable-bank draggable" data-val="1">1</div>
+                <div class="draggable-bank draggable" data-val="2">2</div>
+                <div class="draggable-bank draggable" data-val="3">3</div>
+                <div class="draggable-bank draggable" data-val="4">4</div>
+                <div class="draggable-bank draggable" data-val="5">5</div>
+                <div class="draggable-bank draggable" data-val="6">6</div>
+                <div class="draggable-bank draggable" data-val="7">7</div>
+                <div class="draggable-bank draggable" data-val="8">8</div>
+                <div class="draggable-bank draggable" data-val="9">9</div>
+            </div>
+
+            <div class="action-area">
+                <button id="btnHint" class="btn btn-warning btn-custom text-dark" style="display: none;">
+                    <i class="fas fa-lightbulb"></i> 進位提示
+                </button>
+                <button id="btnSubmit" class="btn btn-success btn-custom" style="display: none;">
+                    <i class="fas fa-check"></i> 作答
+                </button>
+                <button id="btnNext" class="btn btn-primary btn-custom">
+                    <i class="fas fa-arrow-right"></i> 下一題
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // 遊戲狀態變數
+    let currentStage = 1;
+    let num1, num2, totalSum;
+    let placedCount = 0;
+    
+    // 拖曳狀態變數
+    let isDragging = false;
+    let $dragSource = null;
+    let $dragClone = null;
+    let cloneOffsetX = 0, cloneOffsetY = 0;
+
+    // Toast 物件
+    const toastElement = document.getElementById('liveToast');
+    const bsToast = new bootstrap.Toast(toastElement);
+
+    // 顯示提示訊息 (Toast)
+    function showToast(msg, type = 'warning') {
+        const $header = $('#toastHeader');
+        $header.removeClass('bg-warning bg-success bg-danger bg-info');
+        
+        switch(type) {
+            case 'success': $header.addClass('bg-success'); break;
+            case 'danger': $header.addClass('bg-danger'); break;
+            case 'info': $header.addClass('bg-info'); break;
+            default: $header.addClass('bg-warning'); break;
+        }
+        
+        $('#toastMessage').text(msg);
+        bsToast.show();
+    }
+
+    // 產生新題目
+    function generateProblem() {
+        let valid = false;
+        while (!valid) {
+            num1 = Math.floor(Math.random() * 90) + 10; // 10 ~ 99
+            num2 = Math.floor(Math.random() * 90) + 10; // 10 ~ 99
+            totalSum = num1 + num2;
+            if (totalSum < 100) {
+                valid = true;
+            }
+        }
+
+        let n1Tens = Math.floor(num1 / 10);
+        let n1Ones = num1 % 10;
+        let n2Tens = Math.floor(num2 / 10);
+        let n2Ones = num2 % 10;
+
+        // 渲染橫式
+        $('#horizontalEq').html(`
+            <span class="draggable-digit draggable" data-pos="num1-tens">${n1Tens}</span>
+            <span class="draggable-digit draggable" data-pos="num1-ones">${n1Ones}</span>
+            <span class="math-sign">+</span>
+            <span class="draggable-digit draggable" data-pos="num2-tens">${n2Tens}</span>
+            <span class="draggable-digit draggable" data-pos="num2-ones">${n2Ones}</span>
+            <span class="math-sign">=</span>
+            <span class="math-sign">?</span>
+        `);
+
+        // 重置 UI
+        currentStage = 1;
+        placedCount = 0;
+        $('.drop-box').text('').removeClass('filled');
+        $('#carryHint').hide();
+        $('#numberBank').hide();
+        $('#btnHint').hide().prop('disabled', false);
+        $('#btnSubmit').hide().prop('disabled', false);
+        $('#stage1Hint').show();
+        $('#stage2Hint').hide();
+        $('.draggable-bank').addClass('draggable'); // 確保銀行數字可拖曳
+		$('.ans-zone').removeAttr('style');
+    }
+
+    // 檢查第一階段是否完成
+    function checkStage1Complete() {
+        if (placedCount === 4) {
+            currentStage = 2;
+            $('#stage1Hint').hide();
+            $('#stage2Hint').show();
+            $('#numberBank').css('display', 'flex');
+            $('#btnHint').show();
+            $('#btnSubmit').show();
+            showToast('第一階段完成！現在拉動數字來計算答案吧！', 'success');
+        }
+    }
+
+    // 綁定自定義拖曳事件
+    function bindDragEvents() {
+        // 開始拖曳
+        $(document).on('mousedown touchstart', '.draggable', function(e) {
+            if (currentStage === 1 && $(this).hasClass('placed')) return;
+            if (currentStage === 2 && $(this).hasClass('draggable-digit')) return; // 第二階段橫式不可拖
+
+            e.preventDefault();
+            isDragging = true;
+            $dragSource = $(this);
+
+            let clientX = e.type.includes('mouse') ? e.clientX : e.originalEvent.touches[0].clientX;
+            let clientY = e.type.includes('mouse') ? e.clientY : e.originalEvent.touches[0].clientY;
+
+            let rect = this.getBoundingClientRect();
+            cloneOffsetX = clientX - rect.left;
+            cloneOffsetY = clientY - rect.top;
+
+            // 創建克隆
+            $dragClone = $dragSource.clone()
+                .removeClass('draggable draggable-digit draggable-bank placed')
+                .addClass('drag-clone');
+            
+            // 如果是銀行的數字，確保克隆的外觀是一致的
+            if ($dragSource.hasClass('draggable-bank')) {
+                $dragClone.css({
+                    background: 'radial-gradient(circle at 30% 30%, #ffde9c, #ffb347)',
+                    color: '#5a3e1b',
+                    borderColor: 'white',
+                    borderRadius: '12px'
+                });
+            }
+
+            $('body').append($dragClone);
+            $dragClone.css({ left: clientX - cloneOffsetX, top: clientY - cloneOffsetY });
+        });
+
+        // 拖曳移動
+        $(document).on('mousemove touchmove', function(e) {
+            if (!isDragging || !$dragClone) return;
+            e.preventDefault();
+            
+            let clientX = e.type.includes('mouse') ? e.clientX : e.originalEvent.touches[0].clientX;
+            let clientY = e.type.includes('mouse') ? e.clientY : e.originalEvent.touches[0].clientY;
+
+            $dragClone.css({ left: clientX - cloneOffsetX, top: clientY - cloneOffsetY });
+
+            // 高亮目標區域
+            $('.drop-box').removeClass('drop-zone-active');
+            let elem = document.elementFromPoint(clientX, clientY);
+            if (elem) {
+                let $target = $(elem).closest('.drop-box');
+                // 判斷是否為合法的放置區
+                if ($target.length) {
+                    if (currentStage === 1 && !$target.hasClass('ans-zone')) {
+                        $target.addClass('drop-zone-active');
+                    } else if (currentStage === 2 && $target.hasClass('ans-zone')) {
+                        $target.addClass('drop-zone-active');
+                    }
+                }
+            }
+        });
+
+        // 結束拖曳
+        $(document).on('mouseup touchend touchcancel', function(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            $('.drop-box').removeClass('drop-zone-active');
+
+            let clientX, clientY;
+            if (e.type.includes('mouse')) {
+                clientX = e.clientX; 
+                clientY = e.clientY;
+            } else if (e.originalEvent.changedTouches.length > 0) {
+                clientX = e.originalEvent.changedTouches[0].clientX;
+                clientY = e.originalEvent.changedTouches[0].clientY;
+            }
+
+            if (clientX && clientY) {
+                let elem = document.elementFromPoint(clientX, clientY);
+                if (elem) {
+                    let $target = $(elem).closest('.drop-box');
+                    if ($target.length) {
+                        handleDrop($dragSource, $target);
+                    }
+                }
+            }
+
+            if ($dragClone) {
+                $dragClone.remove();
+                $dragClone = null;
+            }
+            $dragSource = null;
+        });
+    }
+
+    // 處理放置邏輯
+    function handleDrop($src, $tgt) {
+        let isFromEq = $src.hasClass('draggable-digit');
+        let targetPos = $tgt.attr('data-pos');
+
+        // 第一階段：橫式拖到直式題目區
+        if (currentStage === 1 && isFromEq) {
+            let expectedPos = $src.attr('data-pos');
+            if ($tgt.hasClass('ans-zone')) return; // 第一階段不能放答案區
+
+            if (targetPos === expectedPos) {
+                $tgt.text($src.text()).addClass('filled');
+                $src.addClass('placed');
+                placedCount++;
+                checkStage1Complete();
+            } else {
+                showToast('位置不對喔！請再試一次。', 'danger');
+            }
+        } 
+        // 第二階段：銀行拖到直式答案區
+        else if (currentStage === 2 && !isFromEq) {
+            if ($tgt.hasClass('ans-zone')) {
+                $tgt.text($src.text()).addClass('filled');
+            }
+        }
+    }
+
+    // 綁定按鈕事件
+    function bindButtons() {
+        $('#btnNext').on('click', function() {
+            generateProblem();
+        });
+
+        $('#btnHint').on('click', function() {
+            // 判斷是否需要進位
+            let n1Ones = num1 % 10;
+            let n2Ones = num2 % 10;
+            if (n1Ones + n2Ones >= 10) {
+                $('#carryHint').toggle();
+            } else {
+                showToast('這題不需要進位喔！', 'info');
+            }
+        });
+
+        $('#btnSubmit').on('click', function() {
+            let tStr = $('.ans-zone[data-pos="ans-tens"]').text();
+            let oStr = $('.ans-zone[data-pos="ans-ones"]').text();
+            
+            if (!tStr || !oStr) {
+                showToast('請將答案填寫完整！', 'warning');
+                return;
+            }
+
+            let userAns = parseInt(tStr) * 10 + parseInt(oStr);
+            if (userAns === totalSum) {
+                showToast('答對了！你太棒了！', 'success');
+                $('.draggable-bank').removeClass('draggable'); // 禁用拖曳
+                $('#btnSubmit').prop('disabled', true);
+                $('#btnHint').prop('disabled', true);
+                
+                // 動畫效果
+                $('.ans-zone').css('background-color', '#d4edda').css('border-color', '#28a745');
+            } else {
+                showToast('答案不對喔，請再算一次！', 'danger');
+                $('.ans-zone').text('').removeClass('filled');
+                $('#carryHint').hide(); // 隱藏提示讓用戶重新思考
+            }
+        });
+    }
+
+    // 初始化
+    $(document).ready(function() {
+        bindDragEvents();
+        bindButtons();
+        generateProblem();
+    });
+
+</script>
+</body>
+</html>
