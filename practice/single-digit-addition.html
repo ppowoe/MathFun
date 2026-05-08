@@ -98,7 +98,6 @@
         <div class="text-center">
           <div id="expressionWrap" class="expression">
             <span id="exprText" aria-live="polite">—</span>
-            <span id="resultIcon" class="ms-2" aria-hidden="true"></span>
           </div>
           <div class="mt-2 small-muted">請按以下按鈕作答</div>
         </div>
@@ -113,6 +112,7 @@
 
       <div class="d-flex justify-content-between align-items-center mt-3">
         <div class="footer-note">從上面的按鈕選擇問題的答案。</div>
+		<span id="resultIcon" class="ms-2" aria-hidden="true"></span>
         <div>
           <button id="nextBtn" class="btn btn-primary" disabled>下一題</button>
         </div>
@@ -176,8 +176,9 @@
         updateExpression();
       }
 
-      function updateExpression() {
-        $exprText.text(`${current.a} + ${current.b} = ?`);
+      function updateExpression(ans) {
+		let answer = ans || '?'
+        $exprText.text(`${current.a} + ${current.b} = ${answer}`);
       }
 
       function revealAnswer(selected) {
@@ -199,6 +200,9 @@
         // Highlight chosen button
         const $chosen = $(`.answer-btn[data-value=${selected}]`);
         $chosen.addClass(isCorrect ? 'btn-success' : 'btn-danger').attr('aria-pressed', 'true');
+		
+		// Show answer in the expression
+		updateExpression(correctSum);
 
         // Disable all answer buttons
         $('.answer-btn').prop('disabled', true);

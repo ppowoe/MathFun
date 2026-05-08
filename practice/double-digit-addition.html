@@ -142,12 +142,17 @@
 	  
 	  function resetUI() {
 		$resultIcon.empty().removeClass('tick cross').attr('aria-hidden', 'true');
-		$exprText.text(`${current.a} + ${current.b} = ?`);
+		updateExpression();
 		$answerBtn.prop('disabled', false);
 		$answerInput.val('');
 		$answerInput.prop('disabled', false);
 		$nextBtn.prop('disabled', true);
 	  }
+	  
+	  function updateExpression(ans) {
+		let answer = ans || '?'
+        $exprText.text(`${current.a} + ${current.b} = ${answer}`);
+      }
 
 	  // Generate random non-negative integers with sum <= 99
 	  function generateQuestion() {
@@ -183,8 +188,9 @@
 		  .text(isCorrect ? '✓' : '✕')
 		  .removeClass('tick cross')
 		  .addClass(isCorrect ? 'result-icon tick' : 'result-icon cross');
-		  
-		$exprText.text(`${current.a} + ${current.b} = ${correctSum}`);
+		
+		// Show answer in the expression
+		updateExpression(correctSum);
 
 		// Enable next button
 		$nextBtn.prop('disabled', false);
