@@ -61,7 +61,7 @@ function monsterAttack() {
 	
 	// 計算時間
 	speedBonus = 1 + 0.1 * Math.floor((currentWave - 1) / 10);
-	timeLimit = 10 / (attack.speed * speedBonus * difficultySpeedBonus);
+	timeLimit = 15 / (attack.speed * speedBonus * difficultySpeedBonus);
 	timeLimit = Math.max(3, timeLimit); // 最少3秒
 	
 	const config = getQuestionConfig(attack.qType);
