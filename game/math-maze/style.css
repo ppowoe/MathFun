@@ -1,0 +1,64 @@
+:root {
+	--background: url("background.png")
+}
+
+body { 
+	background: no-repeat center var(--background);
+	background-size: cover; 
+	font-family: '微軟正黑體', sans-serif; 
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh; /* 確保佔滿視窗高度 */
+	margin: 0; 
+}
+
+#game-container { 
+	max-width: 650px; 
+	width: 95%; /* 手機版自適應寬度 */
+	background: white; 
+	padding: 25px; 
+	border-radius: 15px; 
+	box-shadow: 0 6px 20px rgba(0,0,0,0.15); 
+}
+
+/* 迷宮網格樣式 */
+#maze-grid {
+	display: grid;
+	gap: 4px;
+	margin: 20px auto;
+	background-color: #dee2e6;
+	padding: 4px;
+	border-radius: 8px;
+	max-width: 450px;
+	aspect-ratio: 1 / 1;
+}
+.maze-cell {
+	background-color: #ffffff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.2rem;
+	font-weight: bold;
+	border-radius: 4px;
+	transition: all 0.2s;
+	user-select: none;
+}
+.player-cell {
+	background-color: #0d6efd !important;
+	color: white !important;
+	font-size: 1.4rem;
+	box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+}
+.visited-cell {
+	background-color: #e9ecef !important;
+	color: #adb5bd !important;
+	text-decoration: line-through;
+}
+
+/* 控制面板按鈕固定高度 */
+.ctrl-btn { height: 70px; font-weight: bold; font-size: 1.1rem; }
+.dir-stack-btn { height: 33px; font-weight: bold; font-size: 0.9rem; }
+
+/* 確保自定義 Modal 的文字清晰 */
+.modal-body { font-size: 1.2rem; }
