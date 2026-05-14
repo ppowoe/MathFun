@@ -6,7 +6,7 @@ let currentDifficulty = 'easy';
 let level = 1;
 let targetNumber = 0;
 let currentScore = 0;
-let timeLeft = 60;
+let timeLeft = 100;
 let timerInterval = null;
 
 // 迷宮核心資料架構
@@ -146,7 +146,7 @@ function initLevel() {
     
     // 載入當前關卡狀態
     loadLevelState();
-    timeLeft = 60; // 每關重設 1 分鐘
+    timeLeft = 100; // 每關重設 100 秒
     updateUI();
 }
 
