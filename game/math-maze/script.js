@@ -1,12 +1,12 @@
 // 基礎配置與變數
-const M_MAP = { easy: 1, normal: 2, hard: 3 };
+const M_MAP = { easy: 1, normal: 1.25, hard: 1.5 };
 const SIZE_MAP = { easy: 5, normal: 7, hard: 9 };
 
 let currentDifficulty = 'easy';
 let level = 1;
 let targetNumber = 0;
 let currentScore = 0;
-let timeLeft = 100;
+let timeLeft = 600;
 let timerInterval = null;
 
 // 迷宮核心資料架構
@@ -84,7 +84,7 @@ function initLevel() {
     
     // 計算格子數字範圍公式
     let minGrid = Math.min(1 + Math.floor(0.1 * level * M), M * 4);
-    let maxGrid = Math.min(3 + M * 3 + Math.floor((level * M) / 3), M * 33);
+    let maxGrid = Math.min(2 + M * 2 + Math.floor((level * M) * 0.25), M * 12);
     
     // 1. 生成方格迷宮與隨機數字
     mazeData = [];
@@ -101,7 +101,7 @@ function initLevel() {
     
     // 3. 模擬路徑來計算目標數字（確保絕對有解）
     let totalCells = mazeSize * mazeSize;
-    let requiredSteps = Math.max(Math.min(Math.floor(M * 2 + 2 + 0.5 * level), Math.floor(totalCells * 0.5)), 4);
+    let requiredSteps = Math.max(Math.min(Math.floor(M * 2 + 1 + 0.25 * level), Math.floor(totalCells * 0.4)), 3);
     
     let simX = initialPlayerX;
     let simY = initialPlayerY;
@@ -146,7 +146,7 @@ function initLevel() {
     
     // 載入當前關卡狀態
     loadLevelState();
-    timeLeft = 100; // 每關重設 100 秒
+    timeLeft = 600; // 每關重設 600 秒
     updateUI();
 }
 
