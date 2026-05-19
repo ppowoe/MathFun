@@ -125,7 +125,7 @@ function getQuestionConfig(type) {
 		
 		// 小怪
 		case 'slime_attack':
-			const s1 = genAddTwoSingle();
+			const s1 = genAddTwoSingle(6);
 			const opts1 = generateMCQOptions(s1.ans);
 			return {
 				displayHTML: getHorizontalHTML(`${s1.a} + ${s1.b}`),
@@ -143,7 +143,7 @@ function getQuestionConfig(type) {
 			};
 		
 		case 'skeleton_attack':
-			const sk = genAddThreeSingle(11);
+			const sk = genAddThreeSingle(9);
 			const optsSk = generateMCQOptions(sk.ans);
 			return {
 				displayHTML: getHorizontalHTML(`${sk.a} + ${sk.b} + ${sk.c}`),
@@ -153,7 +153,7 @@ function getQuestionConfig(type) {
 			};
 		
 		case 'bat_attack':
-			const bt = genAddTwoSingle();
+			const bt = genAddTwoSingle(4);
 			return {
 				displayHTML: getHorizontalHTML(`${bt.a} + ${bt.b}`),
 				answer: bt.ans,
@@ -171,7 +171,7 @@ function getQuestionConfig(type) {
 			};
 		
 		case 'alien_monster_attack':
-			const go = genAddTwoDouble(50);
+			const go = genAddTwoDouble(30);
 			const optsGo = generateMCQOptions(go.ans);
 			return {
 				displayHTML: getVerticalAddHTML(go.a, go.b),
@@ -190,7 +190,7 @@ function getQuestionConfig(type) {
 			};
 		
 		case 'troll_attack':
-			const bg = genAddTwoDouble(100);
+			const bg = genAddTwoDouble(50);
 			const optsBg = generateMCQOptions(bg.ans);
 			return {
 				displayHTML: getVerticalAddHTML(bg.a, bg.b),
@@ -209,7 +209,7 @@ function getQuestionConfig(type) {
 			};
 		
 		case 'dragon_attack2':
-			const dr2 = genAddTwoDouble(200);
+			const dr2 = genAddTwoDouble(99);
 			const optsDr2 = generateMCQOptions(dr2.ans);
 			return {
 				displayHTML: getVerticalAddHTML(dr2.a, dr2.b),
@@ -236,7 +236,7 @@ function getQuestionConfig(type) {
 			};
 		
 		case 'vamp_attack2':
-			const va2 = genAddTwoDouble(100);
+			const va2 = genAddTwoDouble(99);
 			const optsVa2 = generateMCQOptions(va2.ans);
 			return {
 				displayHTML: getVerticalAddHTML(va2.a, va2.b),
